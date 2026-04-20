@@ -2,7 +2,7 @@
 
 **Penelitian:** *Mitigation Framework for Double-Spending and Replay Attacks in DeFi Cross-Chain Bridges*
 **Periode:** Minggu ke-3 pasca Seminar Proposal
-**Status:** 🔄 Sedang Dikerjakan
+**Status:** ✅ Selesai
 
 ---
 

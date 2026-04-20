@@ -2,7 +2,7 @@
 
 **Penelitian:** *Mitigation Framework for Double-Spending and Replay Attacks in DeFi Cross-Chain Bridges*
 **Periode:** Minggu ke-7 pasca Seminar Proposal
-**Status:** 🔲 Belum Dimulai
+**Status:** 🔄 Sedang Dikerjakan
 
 ---
 
@@ -245,26 +245,26 @@ ComparisonBenchmarkTest:test_CANB_LockAssets() (gas: 65102)
 
 ### 5.1 Smart Contract Security
 
-- [ ] **Reentrancy:** Semua external call setelah state change (CEI pattern)
-- [ ] **Integer overflow:** Solidity ^0.8.24 built-in overflow checks
-- [ ] **Access control:** `onlyAuthorizedRelayer` modifier di semua entry points
-- [ ] **Signature malleability:** Gunakan OpenZeppelin ECDSA yang sudah handle `s` value normalization
-- [ ] **Domain separator immutability:** Verify `DOMAIN_SEPARATOR` computed sekali di constructor
-- [ ] **Nonce bitmap correctness:** Fuzz test boundary conditions (nonce 0, 255, 256, 511, 512)
-- [ ] **Event emission:** Setiap validation attempt (pass/fail) harus emit event
+- [x] **Reentrancy:** Semua external call setelah state change (CEI pattern)
+- [x] **Integer overflow:** Solidity ^0.8.24 built-in overflow checks
+- [x] **Access control:** `onlyAuthorizedRelayer` modifier di semua entry points
+- [x] **Signature malleability:** Gunakan OpenZeppelin ECDSA yang sudah handle `s` value normalization
+- [x] **Domain separator immutability:** Verify `DOMAIN_SEPARATOR` computed sekali di constructor
+- [x] **Nonce bitmap correctness:** Fuzz test boundary conditions (nonce 0, 255, 256, 511, 512)
+- [x] **Event emission:** Setiap validation attempt (pass/fail) harus emit event
 
 ### 5.2 Deployment Security
 
-- [ ] **Private key management:** Deployer key hanya di `.env`, `.env` di `.gitignore`
+- [x] **Private key management:** Deployer key hanya di `.env`, `.env` di `.gitignore`
 - [ ] **Contract verification:** Verify source code di setiap block explorer
 - [ ] **Initial state:** Verify all mappings empty post-deploy
 - [ ] **Relayer registration:** Only register test relayer addresses
 
 ### 5.3 Experiment Security
 
-- [ ] **Testnet only:** Triple-check chain IDs (84532, 4202, 1001) sebelum broadcast
-- [ ] **No real assets:** Hanya gunakan MockERC20, bukan USDC/IDRX asli
-- [ ] **Reproducibility:** Random seeds dan block numbers di-log untuk replay
+- [x] **Testnet only:** Triple-check chain IDs (84532, 4202, 1001) sebelum broadcast
+- [x] **No real assets:** Hanya gunakan MockERC20, bukan USDC/IDRX asli
+- [x] **Reproducibility:** Random seeds dan block numbers di-log untuk replay
 
 ---
 
@@ -296,8 +296,8 @@ forge snapshot --fork-url http://localhost:8545
 - [ ] Baseline bridge: replay tx passes (vulnerable by design)
 - [ ] CANB bridge: legitimate tx passes
 - [ ] CANB bridge: replay tx reverts with correct reason
-- [ ] Gas usage within target range (≤20% overhead)
-- [ ] All events emitted correctly
+- [x] Gas usage within target range (≤20% overhead)
+- [x] All events emitted correctly
 - [ ] Data collection script captures all metrics
 
 ---
@@ -308,12 +308,12 @@ forge snapshot --fork-url http://localhost:8545
 
 | Criteria | Threshold | Status |
 | :--- | :--- | :---: |
-| Unit test coverage | ≥95% | 🔲 |
-| All attack tests pass | 36/36 scenarios | 🔲 |
-| Gas overhead | ≤20% | 🔲 |
-| Fork dry-run success | All 3 chains | 🔲 |
-| Security checklist | All items checked | 🔲 |
-| Deployment script | Idempotent & verified | 🔲 |
+| Unit test coverage | ≥95% | ✅ |
+| All attack tests pass | 36/36 scenarios | ✅ |
+| Gas overhead | ≤20% | ✅ |
+| Fork dry-run success | All 3 chains | 🔄 |
+| Security checklist | All items checked | 🔄 |
+| Deployment script | Idempotent & verified | 🔄 |
 
 ### 7.2 Known Risks & Mitigations
 
@@ -328,10 +328,10 @@ forge snapshot --fork-url http://localhost:8545
 
 ## 8. Deliverables Minggu 7
 
-- [ ] Final contract codebase (15 contracts, ~795 lines)
-- [ ] Unit test suite (35+ test functions, ≥95% coverage)
-- [ ] Attack test suite (36 scenarios, 5 attack types)
-- [ ] Gas snapshot verification (≤20% overhead)
+- [x] Final contract codebase (15 contracts, ~795 lines)
+- [x] Unit test suite (35+ test functions, ≥95% coverage)
+- [x] Attack test suite (36 scenarios, 5 attack types)
+- [x] Gas snapshot verification (≤20% overhead)
 - [ ] Security checklist completed
 - [ ] Local fork dry-run successful on all 3 chain forks
 - [ ] Go/No-Go assessment: **READY TO DEPLOY**
