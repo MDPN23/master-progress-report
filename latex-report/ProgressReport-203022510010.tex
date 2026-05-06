@@ -1,0 +1,286 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage{longtable,booktabs,array}
+\usepackage{multirow}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{THESIS PROGRESS REPORT
+
+(Reported on 04/21/2026)}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\hypertarget{research-title}{%
+\subsection{Research Title}\label{research-title}}
+
+Mitigation Framework for Double-Spending and Replay Attacks in DeFi Cross-Chain Bridges
+
+\hypertarget{submitted-by}{%
+\subsubsection{Submitted by}\label{submitted-by}}
+
+\textbf{Muhammad Dzikri Pandu Nareswara {[}203022510010{]}}
+
+\textbf{Blockchain Security and Interoperability}
+
+\textbf{mdpnnareswara@gmail.com}
+
+\hypertarget{approved-by}{%
+\subsubsection{Approved by}\label{approved-by}}
+
+\textbf{Supervisor (I)}
+
+\textbf{\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_}
+
+\textbf{( Dr. SUTIYO, S.T., M.Eng. )}
+
+\textbf{Supervisor (II):}
+
+\textbf{\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_}
+
+\textbf{( HILAL HUDAN NUHA, S.T., M.T., Ph.D. )}
+
+
+
+\newpage
+\hypertarget{progress-summary}{%
+\section{Progress Summary (max 500 words)}\label{progress-summary}}
+
+This report covers 7 weeks of post-sempro implementation work. The research has transitioned from proposal finalization into active smart contract development. Weeks 1--6 are completed; Week 7 (finalization and deployment dry-run) is in progress. All examiner feedback has been addressed. The CANB framework (15 contracts, $\sim$795 LoC) is code-complete with $\geq$95\% test coverage, and gas overhead has been optimized from an initial projection of $\sim$45\% down to $\sim$17\%, meeting the $<$20\% research target. The project is now preparing for testnet deployment across Base Sepolia, Lisk Sepolia, and Kaia Baobab.
+
+\textbf{Background}
+
+Blockchain-based DeFi systems rely on cross-chain bridges for interoperability, enabling asset and message transfer between heterogeneous networks. However, these bridges concentrate billions in economic value into limited validation components, creating systemic attack surfaces. From September 2021 to July 2023, cross-chain bridges suffered \$2.83 billion in confirmed losses across 35+ documented exploits, representing 72\% of total DeFi exploit losses. Notable incidents include Wormhole (\$325M), Ronin (\$625M), and Multichain (\$126M), all resulting from validation failures lacking proper nonce binding and domain separation.
+
+Indonesia's digital asset ecosystem amplifies urgency: Bank Indonesia's Project Garuda (2023--2025) prototypes multi-currency settlement requiring interoperable validation, OJK's POJK No. 27/2024 mandates secure interoperability for digital asset trading, and the IDRX stablecoin deployed across Base, Lisk, and Kaia creates a concrete multi-chain testbed.
+
+\textbf{Literature Review}
+
+A structured literature search across Scopus, IEEE Xplore, ACM Digital Library, and arXiv (2020--2025) using cross-chain bridge security keywords yielded nine final studies after systematic screening with explicit inclusion/exclusion criteria.
+
+\textit{Attack Analysis:} Zhang et al.\ (2024, RAID) provide the definitive analysis of 35+ exploits totaling \$2.83B, establishing an A11 taxonomy revealing 72\% of losses stem from validation failures lacking nonce binding and domain separation---yet explicitly exclude implementation.
+
+\textit{Incident \& Workflow Analysis:} Lee et al.\ map \$2.8B in bridge hacks to verification/workflow failure patterns. Duan et al.\ (2023) provide workflow-level root cause analysis of cross-chain mechanism defects.
+
+\textit{Systematization \& Survey:} Augusto et al.\ (SoK, 2024), Smith et al.\ (SoK, 2025), Islam et al.\ (2025), and Mishra \& Phansalkar (2025) consolidate cross-layer mitigations, bridge architecture patterns, layered threat models, and detection tooling landscapes---all without operational prototypes.
+
+\textit{Detection \& Efficiency:} Lin et al.\ demonstrate graph-based anomaly detection (detection-only, no prevention). Scaffino et al.\ (Alba, NDSS 2025) achieve 2x ETH transfer cost via off-chain verification, but lack on-chain replay protection.
+
+A research gap matrix mapping all nine studies against four identified gaps (P1: operationalization, P2: cross-context security, P3: empirical metrics, P4: integration standards) confirms that \textbf{no single study addresses all four gaps}---establishing the critical operationalization void this research fills.
+
+\textbf{Problem Statement}
+
+Four interconnected research gaps emerge from the literature:
+
+\begin{itemize}
+  \item \textbf{P1 (Operationalization Gap):} No deployable prevention artefact exists despite clear theoretical consensus.
+  \item \textbf{P2 (Cross-Context Security Gap):} No standardized method cryptographically binds authorization to precise cross-chain transaction context.
+  \item \textbf{P3 (Empirical Security-Cost Gap):} Limited empirical evidence on security effectiveness versus operational overhead in realistic bridge workflows.
+  \item \textbf{P4 (Integration Gap):} Fragmented controls do not converge into enforceable, modular validation standards for lock-mint/burn-release bridges.
+\end{itemize}
+
+\textbf{Research Question (RQ0):} \textit{How to design and empirically evaluate a preventive validation mechanism for EVM-compatible cross-chain bridges using the lock-mint/burn-release model that enforces cryptographic nonce binding and domain separation to prevent replay attacks and double-spending?}
+
+\textbf{Objective and Hypotheses}
+
+\textbf{Objective (O1):} Design, implement, and empirically evaluate a preventive validation mechanism for EVM-compatible cross-chain bridges using the lock-mint/burn-release model enforcing cryptographic nonce binding and domain separation to prevent replay attacks and double-spending.
+
+\textbf{Hypothesis (H1):} A preventive validation mechanism enforcing cryptographic nonce binding with domain separation in EVM-compatible lock-mint/burn-release bridges will achieve:
+\begin{itemize}
+  \item[\textbf{H1a}] Replay attack rejection rate $\geq 99.9\%$
+  \item[\textbf{H1b}] Double-spending prevention through atomic lock-mint validation preserving asset conservation
+\end{itemize}
+
+\textbf{Research Method}
+
+This study employs Design Science Research (DSR) methodology with three iterative cycles (relevance, rigor, design). The proposed artefact is a Context-Aware Nonce Binding (CANB) framework---modular Solidity validation components for lock-mint/burn-release workflows deployed across Base (Optimism L2), Lisk (EVM sidechain), and Kaia (Klaytn L1) testnets.
+
+\bigskip
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \emph{\textbf{Software/system/method requirement specification}}
+\end{enumerate}
+
+The CANB framework requires:
+\begin{itemize}
+  \item EIP-712 domain separation binding signatures to chain-specific context (chainID, bridgeID, contractAddr)
+  \item Bitmap-based nonce storage for uniqueness enforcement
+  \item Sequential validation pipeline (domain tag $\rightarrow$ context hash $\rightarrow$ nonce freshness $\rightarrow$ context rules)
+  \item Forensic event logging for audit trail compliance (POJK 27/2024)
+\end{itemize}
+Tools: Foundry (Solidity compile/test), Ethers.js (test harness), Python (analytics). Testnets: Base Sepolia, Lisk Sepolia, Kaia Baobab.
+
+\bigskip
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\item
+  \emph{\textbf{Design and Implementation}}
+\end{enumerate}
+
+The CANB architecture comprises 15 contracts ($\sim$795 lines) organized in 4 layers:
+\begin{itemize}
+  \item \textbf{Layer 1 --- Entry Point:} CANBGateway (access control \& routing)
+  \item \textbf{Layer 2 --- Cryptographic Verification:} DomainSeparator (EIP-712 binding), ContextHasher (full context binding)
+  \item \textbf{Layer 3 --- State Verification:} NonceStore (bitmap nonce management), ContextValidator (route \& type rules)
+  \item \textbf{Layer 4 --- Execution:} ValidationModule (pipeline orchestrator), BridgeExecutor (mint/release logic)
+\end{itemize}
+A deliberately-vulnerable baseline bridge (BaselineGateway, BaselineExecutor) serves as the experimental control. Gas optimization reduced projected overhead from $\sim$45\% to $\sim$17\% via bitmap nonce storage, assembly hash computation, and immutable domain separators.
+
+\bigskip
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\item
+  \emph{\textbf{Experimental design}}
+\end{enumerate}
+
+Experiments follow a three-stage protocol per testnet:
+\begin{itemize}
+  \item \textbf{B1 (Control):} Legitimate transactions establishing baseline FRR, gas, and latency
+  \item \textbf{B2 (Attack):} 36 test cases across 5 attack types (same-context replay, cross-context replay, cross-bridge replay, message type confusion, nonce ordering)
+  \item \textbf{B3 (Load):} Concurrent transactions measuring throughput degradation
+\end{itemize}
+Dependent variables: DV1 (blocking rate $\geq 99.9\%$), DV2 (latency overhead), DV3 (gas overhead $<20\%$). \textit{Experiment execution begins Week 9 (Apr 27).}
+
+\bigskip
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\item
+  \emph{\textbf{Analysis of experimental results}}
+\end{enumerate}
+
+Statistical tests for H1:
+\begin{itemize}
+  \item \textbf{Blocking rate (DV1):} Binomial test ($H_0$: rate = 50\%, $H_1$: rate $\geq 99.9\%$, $\alpha = 0.05$)
+  \item \textbf{Overhead (DV2, DV3):} One-sample $t$-test ($H_0$: overhead $\geq 20\%$, $H_1$: overhead $< 20\%$)
+  \item \textbf{Cross-chain comparison:} One-way ANOVA across Base, Lisk, Kaia with Tukey HSD post-hoc
+\end{itemize}
+\textit{Analysis is scheduled for W13--W14 (Jun 2026).}
+
+\section{Implementation Progress \& Findings}
+
+This section details the concrete work performed over 7 weeks of post-sempro implementation, covering examiner feedback resolution, design decisions, and technical breakthroughs.
+
+\textbf{Addressing Examiner Feedback}
+
+Post-sempro feedback has been fully addressed: (1) formal differentiation between same-context replay, cross-context replay, and nonce reuse exploitation was added to the introduction; (2) testnet selection (Base, Lisk, Kaia) was justified based on IDRX ecosystem relevance, heterogeneous finality models, and low gas cost; (3) an explicit baseline control phase (transactions without CANB) was designed; and (4) the $\geq$99.9\% blocking rate target was clarified as a cryptographic bound per Alqalam (2025).
+
+\textbf{Weekly Progress (W1--W7)}
+
+\begin{itemize}
+  \item \textbf{Week 1 --- Analysis \& Verification:} Conducted post-sempro gap analysis, audited development environment (Foundry, Ethers.js, OpenZeppelin), and verified the existing codebase against CANB requirements. Identified 4 critical gaps in the existing bridge contract (no domain separation, no context-aware nonce binding, no validation pipeline, no forensic event logging).
+  \item \textbf{Week 2 --- Baseline Benchmark Design:} Designed the deliberately-vulnerable baseline bridge (BaselineGateway, BaselineExecutor) as the experimental control group, with shared interfaces for apple-to-apple comparison. Documented 4 vulnerability points replicating Wormhole, Multichain, and Ronin exploit patterns.
+  \item \textbf{Week 3 --- Attack Scheme Formulation:} Developed 5 attack types with 36 total test cases across 3 testnets: same-context replay (SC-R), cross-context replay (CC-R), cross-bridge replay, message type confusion, and nonce ordering attacks. Formalized the EIP-712 domain separator and context hash computation.
+  \item \textbf{Week 4 --- Smart Contract Architecture:} Designed the 4-layer modular architecture informed by the attack scheme: (1) Gateway layer, (2) Cryptographic verification layer, (3) State verification layer, (4) Execution layer. Created the traceability matrix mapping each attack vector to its corresponding contract component.
+  \item \textbf{Week 5 --- Gas Optimization \& Regulatory Mapping:} Reduced gas overhead from $\sim$45\% to $\sim$17\% via bitmap-based nonce storage (SSTORE: 25K $\rightarrow$ 5K gas), assembly-level hash computation, and immutable domain separators. Mapped CANB components to POJK 27/2024 requirements and Project Garuda alignment.
+  \item \textbf{Week 6 --- Deployment Schema \& Attack Planning:} Finalized multi-chain deployment configuration for Base Sepolia (chainID 84532), Lisk Sepolia (4202), and Kaia Baobab (1001). Created Foundry deployment scripts and Ethers.js attack runner. Designed the 7-day experiment execution schedule.
+  \item \textbf{Week 7 --- Finalization (Current):} Code review and cleanup of 15 contracts ($\sim$795 lines). Unit test coverage $\geq$95\%. Security checklist in progress. Deployment dry-run on local Anvil forks pending completion.
+\end{itemize}
+
+\textbf{Key Technical Findings}
+
+\begin{enumerate}
+  \item \textbf{Gas Optimization Breakthrough:} The initial per-nonce boolean mapping consumed 22,100 gas per SSTORE. Refactoring to bitmap storage (1 slot = 256 nonce flags) reduced this to $\sim$5,000 gas, bringing total overhead from 45\% to 17.2\% --- within the $<$20\% research target.
+  \item \textbf{EIP-712 Context Binding Effectiveness:} The domain separator incorporating \texttt{chainId}, \texttt{address(this)}, and \texttt{bridgeId} ensures signatures are cryptographically bound to a single (chain, contract, bridge) context. Cross-chain replay is rejected by construction.
+  \item \textbf{Regulatory Compliance Layer:} A forensic event logging system (\texttt{ValidationAttempt}, \texttt{NonceConsumed}, \texttt{SecurityAlert} events) was added to satisfy POJK 27/2024 audit trail requirements (Articles 23, 42) and Project Garuda tamper-evidence standards.
+\end{enumerate}
+
+\textbf{Identified Risks}
+
+\begin{itemize}
+  \item Testnet RPC downtime may delay experiments (mitigation: backup endpoints via Infura/Alchemy)
+  \item Faucet rate-limiting may restrict test ETH/KLAY supply (mitigation: pre-fund accounts)
+  \item Testnet reorgs may cause data inconsistency (mitigation: sufficient confirmation waits)
+\end{itemize}
+
+\textbf{Schedule Realization}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.2262}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.0971}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.0779}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.0779}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.0779}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.2142}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.2287}}@{}}
+\toprule()
+\endhead
+\multirow{2}{*}{Activity} &
+\multicolumn{2}{>{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1750} + 2\tabcolsep}}{%
+Schedule} &
+\multicolumn{2}{>{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1558} + 2\tabcolsep}}{%
+Realization} & \multirow{2}{*}{Output Target} &
+\multirow{2}{*}{Realization} \\
+& Start & End & Start & End \\
+Reference tracing \& gap analysis & Oct 2025 & Dec 2025 & Oct 2025 & Dec 2025 & Literature review, P1--P4 gaps & Completed \\
+Requirement identification & Oct 2025 & Dec 2025 & Oct 2025 & Dec 2025 & RQ0, O1, H1 formalized & Completed \\
+Design process & Oct 2025 & Mar 2026 & Oct 2025 & Apr 2026 & CANB architecture (15 contracts) & Completed (W1--W5) \\
+Implementation & Dec 2025 & Jun 2026 & Mar 2026 & Apr 2026 & Smart contracts ($\sim$795 LoC) & In progress (W7--W8) \\
+Experiment design & Jan 2026 & Jun 2026 & Mar 2026 & Apr 2026 & Attack scheme (36 cases) & Completed (W3, W6) \\
+Testnet deployment & Apr 21 & Apr 25 & -- & -- & Contracts on 3 testnets & Current week (W8) \\
+Control \& attack testing & Apr 27 & Jun 6 & -- & -- & DV1--DV3 raw data & Scheduled (W9--W13) \\
+1st evaluation & Jun 8 & Jun 20 & -- & -- & H1 preliminary results & Scheduled (W14--W15) \\
+Thesis writing & Jun 2026 & Jul 2026 & -- & -- & Final thesis draft & Scheduled (W16+) \\
+\bottomrule()
+\end{longtable}
+
+\end{document}
