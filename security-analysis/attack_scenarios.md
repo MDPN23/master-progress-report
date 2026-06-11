@@ -311,16 +311,73 @@ function test_CANB_ManipulatedAmount_Reverts() public {
 
 ---
 
-## 📊 Ringkasan Attack Vectors
+## 💤 AV-1-1: Sleeping Replay (Time-Delayed Replay)
+
+### Apa itu Sleeping Replay?
+Attacker menangkap signature yang valid, lalu **menunda replay** hingga kondisi menguntungkan (harga naik, likuiditas pool besar). Ini mengeksploitasi ketiadaan **temporal freshness constraint** pada nonce.
+
+> [!WARNING]
+> Attack vector ini ditemukan pada Minggu 12 melalui analisis formal nonce lifecycle. Seluruh bridge implementations yang di-review (13 studi) **tidak memiliki** mitigasi untuk sleeping replay.
+
+```mermaid
+sequenceDiagram
+    participant Attacker
+    participant Bridge as Bridge (Dest)
+
+    Note over Attacker: 📡 Capture valid signature
+    Note over Attacker: 💤 Sleep for days/weeks...
+    Note over Attacker: ⚡ Submit when profitable
+    Attacker->>Bridge: claim(old_signature)
+    Note over Bridge: Baseline: ❌ Accepts (no time check)
+    Note over Bridge: CANB: ✅ Revert (timestamp expired)
+```
+
+### Di Foundry Test:
+
+```solidity
+// ============================================================
+//  AV-1-1: SLEEPING REPLAY — CANB (PROTECTED) ✅
+// ============================================================
+
+function test_CANB_SleepingReplay_Reverts() public {
+    uint256 amount = 100 ether;
+    uint256 freshnessWindow = 3600; // T = 1 hour
+
+    vm.prank(user);
+    bytes32 ctxNonce = canbBridge.lockTokens(amount, destChainId, recipient);
+    uint256 lockTimestamp = block.timestamp;
+
+    bytes memory signature = _createCANBSignature(
+        user, recipient, amount, ctxNonce, lockTimestamp
+    );
+
+    // ── Attacker menunggu 2 jam (melewati window T) ──
+    vm.warp(lockTimestamp + 7200);
+
+    vm.prank(recipient);
+    vm.expectRevert("Nonce expired: temporal freshness violated"); // ✅
+    canbBridge.claimTokens(
+        user, recipient, amount, ctxNonce, signature, lockTimestamp
+    );
+
+    // ✅ Balance tetap 0, sleeping replay GAGAL
+    assertEq(wrappedToken.balanceOf(recipient), 0);
+}
+```
+
+---
+
+## 📊 Ringkasan Attack Vectors (7 Sub-Vectors)
 
 | Attack Vector | Cara Simulasi di Foundry | Baseline Result | CANB Result |
 |---|---|---|---|
-| **Same-chain replay** | Call `claimTokens()` 2x dengan params sama | ❌ Mint 2x (vuln) | ✅ Revert |
-| **Cross-chain replay** | `vm.chainId()` lalu claim di bridge lain | ❌ Mint di chain lain (vuln) | ✅ Revert (chainId binding) |
-| **Double spending** | 1 lock, 2 claim | ❌ Mint 2x (vuln) | ✅ Revert (nonce used) |
-| **Amount manipulation** | Ubah amount di claim params | ❌ Bisa jika signature valid | ✅ Revert (amount in hash) |
-| **Different bridge replay** | Deploy 2 bridge, replay proof | ❌ Bisa jika tanpa address binding | ✅ Revert (bridge addr in hash) |
-| **Stale proof replay** | Gunakan proof lama setelah lama waktu | ❌ Bisa | ✅ Revert (timestamp + nonce) |
+| **AV-1: Same-chain replay** | Call `claimTokens()` 2x dengan params sama | ❌ Mint 2x (vuln) | ✅ Revert (bitmap nonce) |
+| **AV-1-1: Sleeping replay** | `vm.warp()` lalu claim setelah window T | ❌ Bisa (no time check) | ✅ Revert (time-bounded nonce) |
+| **AV-2: Cross-chain replay** | `vm.chainId()` lalu claim di bridge lain | ❌ Mint di chain lain (vuln) | ✅ Revert (chainId binding) |
+| **AV-2-1: Cross-bridge replay** | Deploy 2 bridge, replay proof | ❌ Bisa jika tanpa address binding | ✅ Revert (contractAddr in EIP-712) |
+| **AV-3: Double spending** | 1 lock, 2 claim | ❌ Mint 2x (vuln) | ✅ Revert (atomic nonce + CEI) |
+| **AV-4: Validator impersonation** | Fake EOA signs valid message | ❌ Bisa tanpa registry | ✅ Revert (validator registry) |
+| **AV-5: Amount manipulation** | Ubah amount di claim params | ❌ Bisa jika signature valid | ✅ Revert (amount in context hash) |
 
 ---
 
