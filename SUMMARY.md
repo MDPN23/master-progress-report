@@ -94,3 +94,4 @@
 * [Progres Minggu 12](progress-logs/progW12.md)
 * [Progres Minggu 13](progress-logs/progW13.md)
 * [Progres Minggu 14](progress-logs/progW14.md)
+* [Progres Semester 3: Validasi 4-Tier (70%)](progress-logs/progW15-4tier-validation.md)

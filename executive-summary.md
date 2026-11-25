@@ -1,42 +1,44 @@
 # Executive Summary (Ringkasan Eksekutif)
 
+> **Status:** Semester 3 — *Implementasi Proyek 2* (**70% Overall Completion**, November 2026)  
+> **Verifikasi Lokal:** **114/114 Passing Tests** (`Solc 0.8.30`, Foundry `forge 1.7.1`)
+
 ## Latar Belakang Masalah
-Pertumbuhan ekosistem blockchain memicu tingginya adopsi *Cross-Chain Bridge* (jembatan lintas-rantai) untuk mentransfer likuiditas. Dari September 2021 hingga Juli 2023, eksploitasi bridge menghasilkan kerugian terkonfirmasi sebesar **$2.83 miliar** di 35+ insiden — mewakili 72% dari total kerugian eksploitasi DeFi [Zhang et al., RAID 2024]. Akar masalah utama adalah **State Isolation**: EVM pada satu chain tidak dapat secara native memverifikasi state, konteks, atau riwayat eksekusi chain lain.
+Pertumbuhan ekosistem blockchain memicu tingginya adopsi *Cross-Chain Bridge* untuk mentransfer likuiditas antar-jaringan. Dari September 2021 hingga Juli 2023, eksploitasi bridge menghasilkan kerugian terkonfirmasi sebesar **$2.83 miliar** di 35+ insiden — mewakili 72% dari total kerugian eksploitasi DeFi [Zhang et al., RAID 2024]. Akar masalah utama adalah **State Isolation**: EVM pada satu chain tidak dapat secara native memverifikasi state, konteks, atau riwayat eksekusi chain lain.
 
-Serangan paling kritis — **Replay Attack** dan **Double Spending** — terjadi karena penyerang menggunakan ulang bukti kriptografis (*signatures*) yang sama untuk merampok aset dari *smart contract* bridge, akibat kelemahan validasi dan ketiadaan ikatan konteks.
+### Posisi Terhadap Standar Industri Modern (2024–2026)
+Ekosistem interoperabilitas produksi saat ini telah berkembang menuju protokol *Generalized Message Passing* (GMP) modular (**LayerZero V2**, **Wormhole**, **Hyperlane**, **Chainlink CCIP**), standar *native burn-and-mint* (**Circle CCTP**, **SuperchainERC20**), serta jaringan *intent-based solver* (**Across/ERC-7683**, **Uniswap Permit2**). Meski GMP modern sudah memakai *domain separation*, sebagian besar masih mengandalkan `mapping(bytes32 => bool)` yang membayar **22,100 gas *cold SSTORE* di setiap pesan baru**, dan belum memaksakan *temporal freshness* di level gateway. **CANB** diposisikan sebagai *lightweight, gas-efficient, 4-layer preventive verification framework* untuk *custom/enterprise/appchain EVM gateways* — dan komponen bitmap/freshness-nya kompatibel untuk diadaptasi sebagai *custom Hyperlane ISM* atau *ERC-7683 intent replay guard*.
 
-## Solusi: CANB Framework
-Tesis ini memperkenalkan **Context-Aware Nonce Binding (CANB)** — arsitektur *smart contract* modular yang dirancang khusus untuk memitigasi serangan replay lintas-rantai melalui 4 pilar pengamanan:
+## Solusi: CANB Framework (4-Layer Architecture)
+Tesis ini memperkenalkan **Context-Aware Nonce Binding (CANB)** — 15 kontrak Solidity modular dengan 4 pilar pengamanan:
+1. **ContextHasher & DomainSeparator (EIP-712):** Mengikat ketat setiap tanda tangan ke `(chainId, contractAddr, bridgeId)` sesuai EIP-712 dan NIST SP 800-185.
+2. **ContextValidator:** Memverifikasi parameter rute asal-tujuan dan tipe pesan inbound (`MINT`/`RELEASE`) secara eksplisit.
+3. **NonceStore (Bitmap + Time-Bounded):** Penyimpanan nonce bitmap (256 nonce per slot `uint256`) dengan batasan waktu `block.timestamp <= C.timestamp + T` untuk memblokir *same-context replay* dan *sleeping replay* (**AV-1-1**).
+4. **BridgeExecutor (Strict CEI Pattern):** Pemisahan eksekutor token dengan *Checks-Effects-Interactions* agar menjaga invarian $\Delta\text{Assets} = 0$.
 
-1. **ContextHasher & DomainSeparator (EIP-712):** Mengikat ketat setiap tanda tangan dengan ID Jaringan, Alamat Kontrak, dan Bridge ID — sesuai dengan standar domain separation NIST SP 800-185.
-2. **ContextValidator:** Memverifikasi parameter masuk, rute asal-tujuan, dan mencegah intrusi logika.
-3. **NonceStore (Bitmap + Time-Bounded):** Penyimpanan nonce bitmap biner dengan *temporal freshness constraint* — mencegah double spending deterministik **dan** sleeping replay attack.
-4. **BridgeExecutor (CEI Pattern):** Pemisahan lapisan eksekutor token dengan pola Checks-Effects-Interactions.
+## Hasil Evaluasi Empiris 4-Tier (`B0` vs `B1` vs `B2` vs `CANB`)
 
-### Formal Security Foundation
-CANB didefinisikan melalui **Context Binding Function CB(σ, C)** yang memastikan:
-- **P1 (Domain Binding):** Signature valid di konteks C₁ → invalid di C₂ (probability ≥ 1-2⁻²⁵⁶)
-- **P2 (Nonce Uniqueness + Freshness):** Bitmap monoton + temporal bound = rejection deterministik
-- **P3 (Asset Conservation):** P1 + P2 + CEI → ΔAssets = 0
+Untuk menghindari *strawman bias* dan memastikan perbandingan *ceteris paribus* (seluruh tier menjalankan eksekusi ERC-20 *mint/release* yang identik), CANB diuji terhadap 3 tier baseline di Foundry (`114/114 tests passing`):
 
-## Hasil Evaluasi & Pembuktian (Baseline vs CANB)
+| Vektor Serangan / Invarian | B0 (Naive) | B1 (Legacy `uint256=>bool`) | B2 (Modern EIP-712 `bytes32=>bool`) | CANB (Proposed) |
+| :--- | :---: | :---: | :---: | :---: |
+| **AV-1: Same-Context Replay** | ❌ Jebol | ✅ Ditolak | ✅ Ditolak | ✅ **Ditolak** |
+| **AV-1-1: Sleeping Replay ($+2\text{h} > T$)** | ❌ Jebol | ❌ Jebol | ❌ Jebol | ✅ **Ditolak (`NonceExpired`)** |
+| **AV-2: Cross-Chain Replay** | ❌ Jebol | ❌ Jebol | ✅ Ditolak | ✅ **Ditolak** |
+| **AV-2-1: Cross-Bridge Replay** | ❌ Jebol | ❌ Jebol | ✅ Ditolak | ✅ **Ditolak** |
+| **AV-3: Reentrancy / CEI** | ❌ Rentan | ⚠️ Parsial | ✅ Aman (CEI) | ✅ **Aman (Strict CEI)** |
+| **AV-4: Message Type Confusion** | ❌ Jebol | ❌ Jebol | ❌ Jebol | ✅ **Ditolak (`InvalidMessageType`)** |
+| **AV-5: Out-of-Order Nonce** | ❌ Jebol | ❌ Jebol | ❌ Jebol | ✅ **Ditolak (`NonceOutOfOrder`)** |
+| **DV2: Asset Conservation ($\Delta\text{Assets}=0$)** | ❌ Dilanggar | ❌ Dilanggar | ⚠️ Kondisional | ✅ **Terjaga ($\Delta = 0$)** |
 
-Dalam pengujian di lingkungan simulasi **Foundry**, CANB dibandingkan dengan desain jembatan konvensional (Baseline Bridge) pada **7 sub-vektor serangan**:
+### Efisiensi Biaya Gas (Stage E3 Amortized Steady-State, $N = 100$)
+Di luar ekspektasi awal hipotesis H1c (`< 20%` overhead), penyimpanan Bitmap pada CANB justru menghasilkan **penghematan gas bersih (*net gas savings*)** dibanding B1 maupun B2:
+- **Steady-State Avg (Tx #2–#100):** CANB **23,912 gas/tx** — **35.31% lebih hemat dari B1** (`36,967 gas`) dan **36.18% lebih hemat dari B2** (`37,469 gas`).
+- **Overall Amortized Avg ($N = 100$, termasuk Cold Tx #1):** CANB **24,816 gas/tx** — **33.39% lebih hemat dari B1** dan **34.20% lebih hemat dari B2**.
 
-| Skenario Serangan | Baseline | CANB | Status |
-| :--- | :--- | :--- | :--- |
-| **AV-1: Same-Chain Replay** | ❌ Rentan (Double Minting) | ✅ Aman (Bitmap nonce) | Lulus 100% |
-| **AV-1-1: Sleeping Replay** | ❌ Rentan (No temporal check) | ✅ Aman (Time-bounded T) | Lulus 100% |
-| **AV-2: Cross-Chain Replay** | ❌ Rentan (Aset diklaim di chain lain) | ✅ Aman (EIP-712 chainId) | Lulus 100% |
-| **AV-2-1: Cross-Bridge Replay** | ❌ Rentan (Diklaim di bridge B) | ✅ Aman (EIP-712 contractAddr) | Lulus 100% |
-| **AV-3: Double Spending** | ❌ Rentan | ✅ Aman (Atomic execution + CEI) | Lulus 100% |
-| **AV-4: Validator Impersonation** | ❌ Rentan jika tanpa registry | ✅ Aman (Validator registry) | Lulus 100% |
-| **AV-5: Amount Manipulation** | ❌ Rentan jika tanpa binding payload | ✅ Aman (Payload hashing) | Lulus 100% |
+![4-Tier Apple-to-Apple Gas Comparison](assets/gas_comparison_4tier.png)
 
-### Metodologi Evaluasi
-- **Binomial Test** (α = 0.05): Konfirmasi statistik blocking rate 100%
-- **Empirical Invariant Verification**: ΔAssets = 0 pada seluruh fase eksperimen
-- **One-sample t-test + One-way ANOVA**: Gas overhead <20% konsisten di 3 testnet (Base Sepolia, Lisk Sepolia, Kaia Kairos)
-
-**Kesimpulan:**
-CANB terbukti memitigasi 100% vektor serangan Replay Attack (termasuk novel sleeping replay) sembari mempertahankan gas overhead pada 17.2% — di bawah threshold 20%. Framework ini bersifat *reproducible* dan *ready-to-deploy* pada jaringan heterogen berbasis EVM.
+## Langkah Selanjutnya (Sisa 30% Menuju Sidang)
+1. **Multi-Testnet Deployment & Latency (DV4):** Deploy ke Base Sepolia, Lisk Sepolia, dan Kaia Kairos (Phases E1–E3).
+2. **Evaluasi Statistik:** Binomial Test + Clopper-Pearson 95% CI (H1a), One-Sample $t$-test (H1c), dan One-Way ANOVA + Tukey HSD lintas-chain.
+3. **Finalisasi Naskah Bab 4–5 & Sidang Tesis** (Jan–Feb 2027).
